@@ -93,7 +93,7 @@ class App:
     def _check_events(self):
 
         for event in pygame.event.get():
-            print(event)
+            # print(event)
             if event.type == pygame.QUIT:
                 self._running = False
             if self._computer_player.get_player_number() != self._board.get_current_player() and \
