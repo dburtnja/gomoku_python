@@ -1,0 +1,13 @@
+# Patterns file containce all available patterns. They are
+# placed in format: <pattern>=<score> example: XXXXX=100
+
+XXXXX=10000
+#-XXX--12--X-X-=100
+XXXX-=40
+-XXXX=40
+XXX-X=40
+X-XXX=40
+XX-XX=40
+-XXX-=30
+XXX--=20
+--XXX=20

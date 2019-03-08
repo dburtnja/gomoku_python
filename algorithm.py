@@ -43,7 +43,7 @@ class GomokuAlgorithm:
     def get_player_number(self):
         return self._player_number
 
-    #основний метод minmaxAB, check Google =)
+    # основний метод minmaxAB, check Google =)
     def minmaxAlphaBeta(self, dept, player, alpha, beta, column_index,row_index):
         coord_list = []
         if dept == 0:
