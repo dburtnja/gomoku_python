@@ -37,6 +37,9 @@ class PlayBoard:
         return result
 
     def put_player(self, column, row, player):
+        if player == EMPTY_CELL:
+            self._rows[row][column] = EMPTY_CELL
+            return True
         if self._rows[row][column] == EMPTY_CELL:
             self._rows[row][column] = player
             return True
@@ -134,6 +137,11 @@ class Board:
             return None
         return self._play_board.get_cell(column_index, row_index)
 
+    def clear_cell_by_coords(self, x,y):
+        self._play_board.put_player(x,y,EMPTY_CELL)
+
+    def put_player_by_coords(self, x, y, player):
+        self._play_board.put_player(x,y,player)
 
 if __name__ == '__main__':
     board = Board(19, 50, 720)
