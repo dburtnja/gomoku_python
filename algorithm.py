@@ -15,12 +15,12 @@ class GomokuAlgorithm:
         self._board_size = board_size
 
     def calculate_position(self):
-        # while True:
-        #     row_index = random.randint(0, self._board_size)
-        #     column_index = random.randint(0, self._board_size)
-        #     cell_val = self._board.get_cell_by_index(column_index, row_index)
-        #     if cell_val == EMPTY_CELL:
-        #         return column_index, row_index
+        while True:
+            row_index = random.randint(0, self._board_size)
+            column_index = random.randint(0, self._board_size)
+            cell_val = self._board.get_cell_by_index(column_index, row_index)
+            if cell_val == EMPTY_CELL:
+                return column_index, row_index
 
         cell = EMPTY_CELL
         return_col = -1

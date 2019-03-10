@@ -10,6 +10,8 @@ CELL = 2
 TOP_LEFT_CORNER = 0
 BOTTOM_RIGHT_CORNER = 1
 
+VISIBLE_ARIA_DISTANCE = 2
+
 
 def get_start_point(board_size):
     column_center = int(board_size / 2)
@@ -57,6 +59,11 @@ class Board:
         self._move_number = 0
         self._coordinates = self._calculate_coordinates(board_size, window_strt_position, window_size)
         self._play_board = PlayBoard(board_size)
+        half_board_size = int(board_size / 2)
+        self._column_visible_min = half_board_size - VISIBLE_ARIA_DISTANCE
+        self._column_visible_max = half_board_size + VISIBLE_ARIA_DISTANCE
+        self._row_visible_min = half_board_size - VISIBLE_ARIA_DISTANCE
+        self._row_visible_max = half_board_size + VISIBLE_ARIA_DISTANCE
         # start_point = get_start_point(board_size)
         # self._play_board.put_player(start_point[COLUMNS], start_point[ROWS], player_starts)
 
@@ -126,6 +133,8 @@ class Board:
 
         if column is not None and row is not None and self._play_board.put_player(column, row, player):
             self._change_player()
+            self._change_visible_area(column, row)
+            print(self.get_visible_board_coordinates())
             return self._coordinates[column], self._coordinates[row], (column, row, player)
         return False
 
@@ -133,6 +142,50 @@ class Board:
         if column_index >= self._board_size or row_index >= self._board_size:
             return None
         return self._play_board.get_cell(column_index, row_index)
+
+    def get_cell_by_index_on_visible_board(self, column_index, row_index):
+        column_index += self._column_visible_min
+        row_index += self._row_visible_min
+        if column_index >= self._column_visible_max or row_index >= self._row_visible_max:
+            return None
+        return self._play_board.get_cell(column_index, row_index)
+
+    def get_visible_board_size(self):
+        """
+        This method return visible bord size as tuple.
+        :return: (columns_size, row_size)
+        """
+        return self._column_visible_max - self._column_visible_min, self._row_visible_max - self._row_visible_min
+
+    def _change_visible_area(self, column_index, row_index):
+        self._column_visible_min = self.__get_min(self._column_visible_min, column_index - VISIBLE_ARIA_DISTANCE, 0)
+        self._column_visible_max = self.__get_max(self._column_visible_max, column_index + VISIBLE_ARIA_DISTANCE,
+                                                  self._board_size - 1)
+        self._row_visible_min = self.__get_min(self._row_visible_min, row_index - VISIBLE_ARIA_DISTANCE, 0)
+        self._row_visible_max = self.__get_max(self._row_visible_max, row_index + VISIBLE_ARIA_DISTANCE,
+                                               self._board_size - 1)
+        print(column_index, row_index)
+        print(self._column_visible_min, self._column_visible_max, self._row_visible_min, self._row_visible_max)
+
+    @staticmethod
+    def __get_min(current_min, available_min, min_value):
+        if current_min > available_min:
+            if available_min < min_value:
+                return min_value
+            return available_min
+        return current_min
+
+    @staticmethod
+    def __get_max(current_max, available_max, max_value):
+        if current_max < available_max:
+            if available_max > max_value:
+                return max_value
+            return available_max
+        return current_max
+
+    def get_visible_board_coordinates(self):
+        return self._coordinates[self._column_visible_min], self._coordinates[self._row_visible_min], \
+               self._coordinates[self._column_visible_max], self._coordinates[self._row_visible_max]
 
 
 if __name__ == '__main__':

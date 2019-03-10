@@ -1,7 +1,20 @@
 from abc import abstractmethod
+from board import Board, COLUMNS, ROWS
 
 FILLED_CELL = 'X'
 EMPTY_CELL = '-'
+
+
+CHECK_DIRECTIONS = [
+    (-1, -1),
+    (1, -1),
+    (-1, 1),
+    (1, 1),
+    (0, 1),
+    (0, -1),
+    (1, 0),
+    (-1, 0)
+]
 
 
 class Pattern:
@@ -12,6 +25,12 @@ class Pattern:
     def __init__(self, pattern_description: str, score: int):
         self._pattern = self._parse_pattern(pattern_description)
         self._score = score
+        self._size = len(self._pattern)
+        self._directions = (
+            tuple([(number * column_mult, number * row_mult) for number in range(self._size)][::-1])
+            for column_mult, row_mult in CHECK_DIRECTIONS
+        )
+        # print(list(self._directions))
 
     @classmethod
     @abstractmethod
@@ -25,12 +44,31 @@ class Pattern:
                 return False
         return True
 
+    def _board_size_is_suitable(self, column_size, row_size):
+        if column_size > self._size or row_size > self._size:
+            return False
+        return True
+
     @abstractmethod
-    def _parse_pattern(self, pattern_description:str):
+    def _parse_pattern(self, pattern_description: str):
         pass
+
+    def check_board(self, board: Board):
+        """
+        This method count all scores of current pattern on bord.
+        :param board: Board object
+        :return: score sum
+        """
+        if not isinstance(board, Board):
+            raise AttributeError(f"board parameter should be instance of Board class. Not: '{type(board)}'.")
+        return self._check_board(board)
 
     def __repr__(self):
         return f"{self._pattern} = {self._score}"
+
+    @abstractmethod
+    def _check_board(self, board):
+        pass
 
 
 class SimplePattern(Pattern):
@@ -38,12 +76,34 @@ class SimplePattern(Pattern):
     Simple pattern class. Example: -XXX-
     """
 
+    def _check_board(self, board):
+        result = 0
+
+        column_size, row_size = board.get_visible_board_size()
+        for column in range(column_size):
+            for row in range(row_size):
+                for list_coordinates in self._directions:
+                    result += self._check_coordinates(column, row, list_coordinates, board)
+        return result
+
+    def _check_coordinates(self, start_column, start_row, list_coordinates, board: Board):
+        print(f"STart pos: {start_column}, {start_row}")
+        for column_index, row_index in list_coordinates:
+            cell = board.get_cell_by_index_on_visible_board(
+                column_index + start_column,
+                row_index + start_row
+            )
+            if cell is None:
+                return 0
+            print(f"Cell: {cell}")
+        return self._score
+
     @classmethod
     def can_parse(cls, pattern_string: str):
         return cls._check_available_chars_in_string(pattern_string, (EMPTY_CELL, FILLED_CELL))
 
     def _parse_pattern(self, pattern_description):
-        return [True if char == FILLED_CELL else False for char in pattern_description]
+        return tuple(True if char == FILLED_CELL else False for char in pattern_description)
 
 
 class PatternFactory:
@@ -94,10 +154,25 @@ class PatternController:
             self._patterns = [pattern_factory.get_pattern(pattern_string.strip())
                               for pattern_string in pattern_file.readlines()
                               if pattern_string.strip() and not pattern_string.startswith("#")]
-        print(self._patterns)
+
+    def get_board_value(self, board, positive_player, negative_player):
+        """
+        This method evaluates value on board.
+        :param board:
+        :param positive_player:
+        :param negative_player:
+        :return:
+        """
+        result = 0
+
+        for pattern in self._patterns:
+            result += pattern.check_board(board)
+        return result
 
 
 if __name__ == '__main__':
     print("TEST PATTERN CONTROLLER")
-    # try:
-    PatternController("patterns.txt")
+    try:
+        PatternController("patterns.txt")
+    except Exception as e:
+        print(e)

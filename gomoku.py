@@ -2,6 +2,7 @@ import pygame
 from config import *
 from board import Board, FIRST_PLAYER, SECOND_PLAYER
 from algorithm import GomokuAlgorithm
+from pattern_controller import PatternController
 
 
 BOARD_LINE_WIDTH = 3
@@ -15,6 +16,7 @@ class App:
     def __init__(self, width, height, player_colors=(BLACK_COLOR, WHITE_COLOR)):
         if len(player_colors) != 2:
             raise AttributeError("Player colors should be two.")
+        self._debug_mod = True
         self._player_colors = player_colors
         self._font = None
         self._size = self._weight, self._height = width, height
@@ -25,6 +27,8 @@ class App:
         board_window_pixel_size = Board.get_appropriate_window_size(2 * width / 3, BOARD_SIZE)
         self._board = Board(BOARD_SIZE, int(width / 24), board_window_pixel_size)
         self._computer_player = GomokuAlgorithm(self._board, FIRST_PLAYER, BOARD_SIZE)
+        self._changes = True
+        self._pattern_controller = PatternController("patterns.txt")
 
     def _get_size(self):
         return self._display.get_size()
@@ -87,7 +91,8 @@ class App:
             pygame.time.delay(100)
             self._check_events()
             self._loop()
-            self._render()
+            if self._changes:
+                self._render()
         self._clean()
 
     def _check_events(self):
@@ -108,11 +113,26 @@ class App:
     def _render(self):
         self._display.blit(self._image_surf, (0, 0))
         pygame.display.update()
+        self._changes = False
 
     def _put_on_board(self, position, position_as_index=False):
+        self._changes = True
         res = self._board.put_rock(self._board.get_current_player(), position, ROCK_RADIOUS, position_as_index)
         if res:
+            if self._debug_mod:
+                self._show_visible_board()
             self._place_cell(self._image_surf, res)
+            val = self._pattern_controller.get_board_value(self._board, 1, 2)
+            print(val)
+
+    def _show_visible_board(self):
+        [*left_top_coords, right, bottom] = self._board.get_visible_board_coordinates()
+        # pygame.draw.rect(self._image_surf, DARK_GRAY_COLOR,
+        #                  (*left_top_coords, right - left_top_coords[0], bottom - left_top_coords[1]))
+        visible_surface = pygame.Surface((right - left_top_coords[0], bottom - left_top_coords[1]))
+        visible_surface.set_alpha(100)
+        visible_surface.fill(DARK_GRAY_COLOR)
+        self._image_surf.blit(visible_surface, left_top_coords)
 
 
 if __name__ == '__main__':
