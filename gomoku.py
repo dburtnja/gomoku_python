@@ -114,6 +114,8 @@ class App:
         self._display.blit(self._image_surf, (0, 0))
         pygame.display.update()
         self._changes = False
+        val = self._pattern_controller.get_board_value(self._board, SECOND_PLAYER)
+        print(f"VALUE {val}")
 
     def _put_on_board(self, position, position_as_index=False):
         self._changes = True
@@ -122,8 +124,6 @@ class App:
             if self._debug_mod:
                 self._show_visible_board()
             self._place_cell(self._image_surf, res)
-            val = self._pattern_controller.get_board_value(self._board, 1, 2)
-            print(val)
 
     def _show_visible_board(self):
         [*left_top_coords, right, bottom] = self._board.get_visible_board_coordinates()
