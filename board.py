@@ -1,16 +1,4 @@
-
-EMPTY_CELL = 0
-FIRST_PLAYER = 1
-SECOND_PLAYER = 2
-
-COLUMNS = 0
-ROWS = 1
-CELL = 2
-
-TOP_LEFT_CORNER = 0
-BOTTOM_RIGHT_CORNER = 1
-
-VISIBLE_ARIA_DISTANCE = 2
+from config import *
 
 
 def get_start_point(board_size):
@@ -50,7 +38,10 @@ class PlayBoard:
 
 class Board:
 
-    def __init__(self, board_size, window_strt_position, window_size, players=(FIRST_PLAYER, SECOND_PLAYER)):
+    def __init__(self, board_size, window_strt_position, window_size,
+                 players=(FIRST_PLAYER, SECOND_PLAYER),
+                 rock_radious=ROCK_RADIOUS
+                 ):
         self._board_size = board_size
         self._players = players
         self._current_player = players[0]
@@ -64,8 +55,7 @@ class Board:
         self._column_visible_max = half_board_size + VISIBLE_ARIA_DISTANCE
         self._row_visible_min = half_board_size - VISIBLE_ARIA_DISTANCE
         self._row_visible_max = half_board_size + VISIBLE_ARIA_DISTANCE
-        # start_point = get_start_point(board_size)
-        # self._play_board.put_player(start_point[COLUMNS], start_point[ROWS], player_starts)
+        self._rock_radious = rock_radious
 
     def get_current_player(self):
         return self._current_player
@@ -101,7 +91,6 @@ class Board:
             print(self._max, self._min)
         if self._min <= coord[COLUMNS] <= self._max and self._min <= coord[ROWS] <= self._max:
             return False
-        print("not on bord")
         return True
 
     def _change_player(self):
@@ -123,18 +112,20 @@ class Board:
                 column = index
             if row is None and min_coord <= rock_coordinates[ROWS] <= max_coord:
                 row = index
+            if column and row:
+                return column, row
         return column, row
 
-    def put_rock(self, player, rock_coordinates, distance, index_coordinates=False):
-        if not index_coordinates:
-            column, row = self._get_index(rock_coordinates, distance)
-        else:
-            column, row = rock_coordinates
+    def get_indexes_by_coordinates(self, mouse_coordinates):
+        return self._get_index(mouse_coordinates, self._rock_radious)
+
+    def put_rock(self, rock_coordinates):
+        column, row = rock_coordinates
+        player = self.get_current_player()
 
         if column is not None and row is not None and self._play_board.put_player(column, row, player):
             self._change_player()
             self._change_visible_area(column, row)
-            print(self.get_visible_board_coordinates())
             return self._coordinates[column], self._coordinates[row], (column, row, player)
         return False
 
@@ -164,8 +155,6 @@ class Board:
         self._row_visible_min = self.__get_min(self._row_visible_min, row_index - VISIBLE_ARIA_DISTANCE, 0)
         self._row_visible_max = self.__get_max(self._row_visible_max, row_index + VISIBLE_ARIA_DISTANCE,
                                                self._board_size - 1)
-        print(column_index, row_index)
-        print(self._column_visible_min, self._column_visible_max, self._row_visible_min, self._row_visible_max)
 
     @staticmethod
     def __get_min(current_min, available_min, min_value):
@@ -187,7 +176,11 @@ class Board:
         return self._coordinates[self._column_visible_min], self._coordinates[self._row_visible_min], \
                self._coordinates[self._column_visible_max], self._coordinates[self._row_visible_max]
 
+    def get_visible_board(self):
+        return self._coordinates[self._column_visible_min], self._coordinates[self._row_visible_min], \
+               self._coordinates[self._column_visible_max] - self._coordinates[self._column_visible_min], \
+               self._coordinates[self._row_visible_max] - self._coordinates[self._row_visible_min]
+
 
 if __name__ == '__main__':
     board = Board(19, 50, 720)
-    # print(list(range(0, 19, 2)))
