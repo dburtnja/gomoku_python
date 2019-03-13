@@ -1,12 +1,17 @@
 # Patterns file containce all available patterns. They are
 # placed in format: <pattern>=<score> example: XXXXX=100
 
-XXXXX=10000
-#-XXX--12--X-X-=100
--XXXX-=50
-XXXX-=40
-XXX-X=40
-XX-XX=40
-X-X-X=30
--XXX-=30
-XXX--=20
+XXXXX=99999
+
+-XXXX-=7000
+-XXXX=4000
+-XXX-=3000
+-X-XXX=2000
+-XX-XX=2000
+-XXX-X=2000
+XXX--=1500
+-XX-X-=1000
+-X-XX-=1000
+-XX-X=800
+-XX--=200
+XX---=150

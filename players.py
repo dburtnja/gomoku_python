@@ -2,11 +2,11 @@ from board import Board
 from abc import abstractmethod
 from time import time
 from config import *
-
+from algorithm import GomokuAlgorithm
 
 class Player:
 
-    def __init__(self, name, number, helper=None):
+    def __init__(self, name, number, helper:GomokuAlgorithm=None):
         self._occupations_number = 0
         self._player_number = number
         self._name = name
@@ -48,7 +48,9 @@ class HumanPlayer(Player):
         return None
 
 
-class ComputerPlayer(Player):
 
+class ComputerPlayer(Player):
+    
+            
     def _calculate_move(self, board: Board, view):
-        pass
+        return self._helper.calculate_position()

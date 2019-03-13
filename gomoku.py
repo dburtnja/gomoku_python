@@ -1,7 +1,8 @@
 from config import *
 from board import Board, FIRST_PLAYER, SECOND_PLAYER
 from pattern_controller import PatternController
-from players import HumanPlayer
+from players import HumanPlayer, ComputerPlayer
+from algorithm import GomokuAlgorithm
 import pygame
 
 
@@ -145,7 +146,8 @@ class App:
         self._players = None
 
     def _set_players(self):
-        self._players = HumanPlayer("First", FIRST_PLAYER), HumanPlayer("Second", SECOND_PLAYER)
+        self._players = HumanPlayer("First", FIRST_PLAYER), ComputerPlayer("Second", SECOND_PLAYER, GomokuAlgorithm(self._board,SECOND_PLAYER, BOARD_SIZE))
+        # self._players = HumanPlayer("First", FIRST_PLAYER), HumanPlayer("Second", SECOND_PLAYER)
 
     def _get_player(self, player_number):
         return self._players[player_number]

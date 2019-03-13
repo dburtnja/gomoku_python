@@ -186,8 +186,9 @@ class PatternController:
 
         for pattern in self._patterns:
             result += pattern.check_board(board, positive_player)
+            if result != 0:
+                return result
         return result
-
 
 if __name__ == '__main__':
     print("TEST PATTERN CONTROLLER")
